@@ -12,7 +12,7 @@ run_worker_first = ["/api/*"]
 # then paste the returned id below.
 [[kv_namespaces]]
 binding = "ROUTES"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "00d482f4183447e4a8ab498f1dab3455"
 
 [vars]
 # Optional: replace with your own Map ID (Google Cloud Console > Map Management).
