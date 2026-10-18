@@ -28,6 +28,8 @@ Google Maps can't save a fixed, named route that avoids specific roads or inters
    - **API restrictions:** only the three APIs above.
 4. Optional: create a **Map ID** (Map Management) and set `MAP_ID` in `wrangler.toml`. The default `DEMO_MAP_ID` is fine for trying things out.
 
+Place search uses the Places API (New) Text Search. If search or the route preview fails, Google's error message (for example "API has not been used in project" or a referrer restriction) appears in the status line at the top of the side panel.
+
 This key is used in the browser, so it is visible to anyone who loads the page. The referrer and API restrictions are what protect it.
 
 ### 2. Cloudflare

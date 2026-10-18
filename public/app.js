@@ -121,31 +121,84 @@ async function initMap() {
   });
 }
 
-async function initSearch() {
-  try {
-    const { PlaceAutocompleteElement } = await google.maps.importLibrary('places');
-    const ac = new PlaceAutocompleteElement({});
-    ac.setAttribute('placeholder', 'Search for an address or place');
-    const onSelect = async (ev) => {
-      try {
-        const place = ev.placePrediction ? ev.placePrediction.toPlace() : ev.place;
-        await place.fetchFields({ fields: ['location', 'displayName'] });
-        addPoint({
-          lat: place.location.lat(),
-          lng: place.location.lng(),
-          label: (place.displayName || '').slice(0, 80),
-        });
-        map.panTo(place.location);
-      } catch (e) {
-        status('Could not add that place: ' + e.message, 'error');
-      }
+/* ---------- place search (Places API (New) Text Search) ---------- */
+
+async function searchPlaces(query) {
+  const body = { textQuery: query, maxResultCount: 5 };
+  const bounds = map.getBounds();
+  if (bounds) {
+    const ne = bounds.getNorthEast();
+    const sw = bounds.getSouthWest();
+    body.locationBias = {
+      rectangle: {
+        low: { latitude: sw.lat(), longitude: sw.lng() },
+        high: { latitude: ne.lat(), longitude: ne.lng() },
+      },
     };
-    ac.addEventListener('gmp-select', onSelect);
-    ac.addEventListener('gmp-placeselect', onSelect); // older API versions
-    $('#search').appendChild(ac);
-  } catch {
-    $('#search').textContent = 'Place search is unavailable (enable Places API (New) on your key). You can still click the map.';
   }
+  const res = await fetch('https://places.googleapis.com/v1/places:searchText', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Goog-Api-Key': config.mapsKey,
+      'X-Goog-FieldMask': 'places.displayName,places.formattedAddress,places.location',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => null);
+    throw new Error(data?.error?.message || `Places API error (${res.status})`);
+  }
+  const data = await res.json();
+  return (data.places || [])
+    .filter((p) => p.location)
+    .map((p) => ({
+      name: p.displayName?.text || '',
+      address: p.formattedAddress || '',
+      lat: p.location.latitude,
+      lng: p.location.longitude,
+    }));
+}
+
+function renderSearchResults(results) {
+  const ul = $('#search-results');
+  ul.replaceChildren();
+  results.forEach((r) => {
+    const li = document.createElement('li');
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = r.name && r.address ? `${r.name} — ${r.address}` : r.name || r.address;
+    b.addEventListener('click', () => {
+      addPoint({ lat: r.lat, lng: r.lng, label: (r.name || r.address).slice(0, 80) });
+      map.panTo({ lat: r.lat, lng: r.lng });
+      ul.replaceChildren();
+      $('#search-input').value = '';
+      status('');
+    });
+    li.appendChild(b);
+    ul.appendChild(li);
+  });
+}
+
+function bindSearch() {
+  $('#search-form').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const query = $('#search-input').value.trim();
+    if (!query) return;
+    status('Searching…');
+    renderSearchResults([]);
+    try {
+      const results = await searchPlaces(query);
+      if (!results.length) {
+        status('No places found. Try adding a city or state.', 'error');
+        return;
+      }
+      renderSearchResults(results);
+      status('Pick a result to add it as a stop.');
+    } catch (e) {
+      status('Search failed: ' + e.message, 'error');
+    }
+  });
 }
 
 /* ---------- Routes API preview ---------- */
@@ -653,10 +706,10 @@ async function boot() {
     return;
   }
   bindUi();
+  bindSearch();
   const params = new URLSearchParams(location.search);
   await refreshAccess({ forceView: params.get('view') === '1' });
   renderAll();
-  initSearch();
   const id = params.get('r');
   if (id) {
     try {
