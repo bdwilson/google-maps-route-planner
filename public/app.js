@@ -320,8 +320,14 @@ function insertPoint(index, point) {
     status(`A route can have at most ${MAX_POINTS} points.`, 'error');
     return;
   }
+  const isFirst = state.points.length === 0;
   state.points.splice(index, 0, point);
   changed(true);
+  if (isFirst && map) {
+    // The map starts zoomed out; jump in on the first point so the next click is precise.
+    map.panTo({ lat: point.lat, lng: point.lng });
+    if ((map.getZoom() || 0) < 15) map.setZoom(15);
+  }
 }
 
 function addPoint(point) {
