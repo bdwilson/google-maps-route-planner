@@ -1,0 +1,23 @@
+name = "google-maps-route-planner"
+main = "src/worker.js"
+compatibility_date = "2025-09-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+# Only /api/* runs the Worker; everything else is served as static files.
+run_worker_first = ["/api/*"]
+
+# Create with: npx wrangler kv namespace create ROUTES
+# then paste the returned id below.
+[[kv_namespaces]]
+binding = "ROUTES"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+[vars]
+# Optional: replace with your own Map ID (Google Cloud Console > Map Management).
+MAP_ID = "DEMO_MAP_ID"
+
+# Secrets (never commit these):
+#   npx wrangler secret put GOOGLE_MAPS_API_KEY
+#   npx wrangler secret put EDIT_TOKEN

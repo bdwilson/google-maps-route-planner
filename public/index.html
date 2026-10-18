@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>Student Driver Routes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Student Driver Routes</h1>
+    <span id="mode" class="chip">Viewer</span>
+  </header>
+
+  <main class="layout">
+    <aside class="panel" id="panel">
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+
+      <!-- Viewer: what the student sees -->
+      <section class="viewer-only" id="sec-title">
+        <h2 id="title">Select a route</h2>
+        <p id="notes-view" class="muted"></p>
+      </section>
+
+      <!-- Editor: route details -->
+      <section class="editor-only" id="sec-details">
+        <label for="name">Route name</label>
+        <input id="name" type="text" maxlength="100" placeholder="Home to school (no highways)">
+        <label for="notes">Notes for the driver</label>
+        <textarea id="notes" rows="2" maxlength="2000" placeholder="Stay in the right lane after the light on Main St."></textarea>
+      </section>
+
+      <section class="editor-only" id="sec-add">
+        <h2>Add stops</h2>
+        <div id="search"></div>
+        <p class="hint">Click the map to add a point. Click the blue line to insert a point exactly where you want the route to bend. Drag any marker to move it. Double-click a marker to remove it.</p>
+      </section>
+
+      <section id="sec-points">
+        <h2>Route</h2>
+        <ol id="points" class="points"></ol>
+        <div class="row">
+          <button id="reverse" type="button">⇄ Reverse direction</button>
+          <button id="new" type="button" class="editor-only secondary">New route</button>
+        </div>
+      </section>
+
+      <section class="editor-only" id="sec-options">
+        <h2>Preview options</h2>
+        <label class="check"><input type="checkbox" id="avoid-highways"> Avoid highways</label>
+        <label class="check"><input type="checkbox" id="avoid-tolls"> Avoid tolls</label>
+        <label class="check"><input type="checkbox" id="avoid-ferries"> Avoid ferries</label>
+        <p class="hint">These shape the blue preview line. The Google Maps link only carries your points, so place points at the turns you care about.</p>
+      </section>
+
+      <section id="sec-summary">
+        <p id="summary" class="summary"></p>
+      </section>
+
+      <section id="sec-go">
+        <h2>Navigate</h2>
+        <div id="links" class="links"></div>
+      </section>
+
+      <section class="editor-only" id="sec-save">
+        <h2>Save</h2>
+        <div class="row">
+          <button id="save" type="button" class="primary">Save route</button>
+          <button id="save-new" type="button" class="secondary">Save as new</button>
+          <button id="delete" type="button" class="danger">Delete</button>
+        </div>
+        <div id="share" class="share" hidden>
+          <label for="share-url">Student link (view only)</label>
+          <div class="row">
+            <input id="share-url" type="text" readonly>
+            <button id="copy" type="button" class="secondary">Copy</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="editor-only" id="sec-saved">
+        <h2>Saved routes</h2>
+        <ul id="saved" class="saved"></ul>
+      </section>
+
+      <details id="sec-access" class="access">
+        <summary>Editor access</summary>
+        <label for="token">Edit token</label>
+        <div class="row">
+          <input id="token" type="password" autocomplete="off" placeholder="Paste your edit token">
+          <button id="unlock" type="button" class="secondary">Unlock</button>
+          <button id="lock" type="button" class="secondary">Lock</button>
+        </div>
+      </details>
+    </aside>
+
+    <div id="map" class="map" role="application" aria-label="Route map"></div>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
