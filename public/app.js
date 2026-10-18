@@ -273,7 +273,7 @@ function insertPoint(index, point) {
   if (isFirst && map) {
     // The map starts zoomed out; jump in on the first point so the next click is precise.
     map.panTo({ lat: point.lat, lng: point.lng });
-    if ((map.getZoom() || 0) < 15) map.setZoom(15);
+    if ((map.getZoom() || 0) < 11) map.setZoom(11); // roughly 30-40 miles across
   }
 }
 
